@@ -26,6 +26,7 @@ from taiga.auth.services import get_auth_plugins
 
 from . import connector
 
+
 FALLBACK = getattr(settings, "LDAP_FALLBACK", "")
 
 
@@ -40,6 +41,8 @@ def ldap_register(username: str, email: str, full_name: str):
     :returns: User
     """
     user_model = apps.get_model("users", "User")
+
+    username = username.lower()
 
     try:
         # LDAP user association exists?
