@@ -100,7 +100,7 @@ def login(login: str, password: str) -> tuple:
 
     # stop if no search results
     # TODO: handle multiple matches
-    if len(c.response) == 0:
+    if (len(c.response) == 0) or (c.response[0].get('type') != 'searchResEntry'):
         raise LDAPUserLoginError({"error_message": "LDAP login not found"})
 
     # attempt LDAP bind
