@@ -43,22 +43,18 @@ def ldap_register(username: str, email: str, full_name: str):
     user_model = apps.get_model("users", "User")
 
     try:
-        # LDAP user association exists? (case sensitive)
-        user = user_model.objects.get(username__exact = username)
+        # LDAP user association exists? (case insensitive)
+        user = user_model.objects.get(username__iexact = username)
+        # LDAP email exists
+        user_model.objects.get(email__iexact = email)
+    # if no case sensitive match for user or case insensitive match for user and email, create a new user
     except user_model.DoesNotExist:
-        try:
-            # LDAP user association exists? (case insensitive)
-            user = user_model.objects.get(username__iexact = username)
-            # LDAP email exists
-            user_model.objects.get(email__iexact = email)
-        # if no case sensitive match for user or case insensitive match for user and email, create a new user
-        except user_model.DoesNotExist:
-            # Create a new user
-            username_unique = slugify_uniquely(username, user_model, slugfield = "username")
-            user = user_model.objects.create(username = username_unique,
-                                             email = email,
-                                             full_name = full_name)
-            user_registered_signal.send(sender = user.__class__, user = user)
+        # Create a new user
+        username_unique = slugify_uniquely(username, user_model, slugfield = "username")
+        user = user_model.objects.create(username = username_unique,
+                                         email = email,
+                                         full_name = full_name)
+        user_registered_signal.send(sender = user.__class__, user = user)
             
 
     # update DB entry if LDAP field values differ
